@@ -44,15 +44,19 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 12);
     const token = crypto.randomBytes(32).toString("hex");
 
+    // Create user with email already verified (for testing)
     const user = await prisma.user.create({
       data: {
         email,
         username,
         password: hashedPassword,
+        emailVerified: new Date(), // AUTO-VERIFY for testing
         page: { create: {} },
       },
     });
 
+    // COMMENTED OUT EMAIL SENDING FOR TESTING
+    /*
     await prisma.emailVerificationToken.create({
       data: {
         userId: user.id,
@@ -67,6 +71,7 @@ export async function POST(req: Request) {
       subject: "Verify your Puls account",
       html: generateVerificationEmailHTML(token),
     });
+    */
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (err) {
